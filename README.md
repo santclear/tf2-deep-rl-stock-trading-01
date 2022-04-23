@@ -1,6 +1,6 @@
 
 
-# The rl_trader_tf2.py project is a copy, with some minor modifications made by me to work on TF 2.8 and increase training performance, presented in the course (Tensorflow 2.0: Um Guia Completo sobre o novo TensorFlow - Udemy) by Professor Jones Granatyr.
+### The rl_trader_tf2.py project is a copy, with some minor modifications made by me to work on TF 2.8 and increase training performance, presented in the course (Tensorflow 2.0: Um Guia Completo sobre o novo TensorFlow - Udemy) by Professor Jones Granatyr.
 
 #### How to install the libraries in Anaconda
 
