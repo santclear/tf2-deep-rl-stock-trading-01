@@ -16,12 +16,19 @@ import random
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import InputLayer
+from tensorflow.keras.optimizers import Adam
 import matplotlib.pyplot as plt
 import pandas_datareader as data_reader
 from pandas.util.testing import assert_frame_equal #import alterado
 
 from tqdm import tqdm_notebook, tqdm
 from collections import deque
+
+# https://stackoverflow.com/questions/58441514/why-is-tensorflow-2-much-slower-than-tensorflow-1
+tf.compat.v1.disable_eager_execution()
 
 tf.__version__
 
@@ -42,13 +49,14 @@ class AI_Trader():
 		self.model = self.model_builder()
 
 	def model_builder(self):
-		model = tf.keras.models.Sequential()
-		model.add(tf.keras.Input(shape=(self.state_size,)))
-		model.add(tf.keras.layers.Dense(units = 32, activation = "relu"))
-		model.add(tf.keras.layers.Dense(units = 64, activation = "relu"))
-		model.add(tf.keras.layers.Dense(units = 128, activation = "relu"))
-		model.add(tf.keras.layers.Dense(units = self.action_space, activation = "linear"))
-		model.compile(loss = "mse", optimizer = tf.keras.optimizers.Adam(lr = 0.001))
+		model = Sequential()
+		model.add(InputLayer(input_shape=(self.state_size,)))
+		model.add(InputLayer(input_shape=(self.state_size+1,)))
+		model.add(Dense(units = 32, activation = 'relu'))
+		model.add(Dense(units = 64, activation = 'relu'))
+		model.add(Dense(units = 128, activation = 'relu'))
+		model.add(Dense(units = self.action_space, activation = 'linear'))
+		model.compile(loss = 'mse', optimizer = Adam(learning_rate = 0.001))
 		return model
 
 
@@ -133,15 +141,13 @@ def state_creator(data, timestep, window_size):
 	starting_id = timestep - window_size + 1
 
 	if starting_id >= 0:
-		# windowed_data = data[starting_id:timestep + 1] # Atualizado 14/03/2022
-		windowed_data = np.array(data[starting_id:timestep + 1]) # Atualizado 14/03/2022
+		windowed_data = np.array([data[starting_id:timestep + 1]])
 	else:
-		# windowed_data = - starting_id * [data[0]] + list(data[0:timestep + 1]) # Atualizado 14/03/2022
-		windowed_data = np.array(- starting_id * [data[0]] + list(data[0:timestep + 1])) # Atualizado 14/03/2022
+		windowed_data = np.array([- starting_id * [data[0]] + list(data[0:timestep + 1])])
 
 	state = []
 	for i in range(window_size - 1):
-		state.append(sigmoid(windowed_data[i + 1] - windowed_data[i]))
+		state.append(sigmoid(windowed_data[0][i + 1] - windowed_data[0][i]))
 
 	return np.array([state]), windowed_data
 
